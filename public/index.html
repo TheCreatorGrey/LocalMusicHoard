@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link id="icon" rel="icon" href="/assets/default.svg">
+</head>
+<body>
+    <div id="content_area">
+    </div>
+
+    <div id="playback_bar">
+        <img src="/assets/default.svg" alt="album cover" id="album_cover">
+        <div id="playback_controls_area">
+            <div id="now_playing_title">Nothing is playing yet.</div>
+            <audio controls id="audio">
+                <source id="audio_source" src="./wankers.m4a" type="audio/mpeg">
+            </audio>
+            <textarea name="" id="url_box"></textarea>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>

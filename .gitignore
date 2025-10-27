@@ -1,0 +1,23 @@
+# Do not include cover files
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.bmp
+
+# Do not include tracks
+*.mp3
+*.m4a
+*.mkv
+*.wav
+*.flac
+
+# Do not include indices or playlists
+*.json
+*.csv
+
+# Other private directories
+.old
+.cache
+__pycache__
+env

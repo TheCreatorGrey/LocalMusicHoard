@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="25"
+   height="25"
+   viewBox="0 0 6.6145832 6.6145833"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   sodipodi:docname="deverify.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     inkscape:zoom="14.916699"
+     inkscape:cx="5.9999869"
+     inkscape:cy="11.463662"
+     inkscape:window-width="1920"
+     inkscape:window-height="948"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="path2"
+       style="opacity:1;fill:#ff9a9a;fill-opacity:1">
+      <path
+         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#ff9a9a;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;enable-background:accumulate;stop-color:#000000;stop-opacity:1;fill-opacity:1"
+         d="m 0.19335937,0.19335937 a 0.66145998,0.66145998 0 0 0 0,0.93554683 L 5.4863281,6.4199219 a 0.66145998,0.66145998 0 0 0 0.9335938,0 0.66145998,0.66145998 0 0 0 0,-0.9335938 L 1.1289062,0.19335937 a 0.66145998,0.66145998 0 0 0 -0.93554683,0 z"
+         id="path4" />
+      <path
+         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#ff9a9a;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;enable-background:accumulate;stop-color:#000000;stop-opacity:1;fill-opacity:1"
+         d="M 0.66145997,0.66145997 5.9531232,5.9531232"
+         id="path5" />
+    </g>
+    <g
+       id="path3"
+       style="opacity:1;fill:#ff9a9a;fill-opacity:1">
+      <path
+         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#ff9a9a;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;enable-background:accumulate;stop-color:#000000;stop-opacity:1;fill-opacity:1"
+         d="M 5.953125,0 A 0.66145998,0.66145998 0 0 0 5.4863281,0.19335937 L 0.19335937,5.4863281 a 0.66145998,0.66145998 0 0 0 0,0.9335938 0.66145998,0.66145998 0 0 0 0.93554683,0 L 6.4199219,1.1289062 a 0.66145998,0.66145998 0 0 0 0,-0.93554683 A 0.66145998,0.66145998 0 0 0 5.953125,0 Z"
+         id="path6" />
+      <path
+         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#ff9a9a;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;enable-background:accumulate;stop-color:#000000;stop-opacity:1;fill-opacity:1"
+         d="M 0.66145997,5.9531232 5.9531232,0.66145997"
+         id="path7" />
+    </g>
+  </g>
+</svg>

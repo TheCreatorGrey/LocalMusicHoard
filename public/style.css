@@ -1,0 +1,90 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+.album {
+    border: 1px solid grey;
+    margin: 20px;
+    padding: 20px;
+    background-color: rgb(43, 43, 43);
+    border-radius: 2px;
+}
+
+.header_text {
+    padding: 0;
+    margin: 0;
+}
+
+
+.track_container span {
+    margin-right: 5px;
+}
+
+.inline_button {
+    width: 15px;
+    height: 15px;
+    padding: 2px;
+    margin-right: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 2px;
+}
+
+.inline_button:hover {
+    background-color: rgba(255, 255, 255, .5);
+    cursor: pointer;
+}
+
+
+.album .cover {
+    display: block;
+    width: 200px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 2px;
+}
+
+
+#content_area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100% - 80px);
+    background-color: black;
+    overflow-y: scroll;
+}
+
+#playback_bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background-color: black;
+    border-top: 1px solid purple;
+}
+
+#playback_bar img {
+    left: 0;
+    top: 0;
+    height: 80px;
+    width: 80px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#playback_controls_area {
+    display: inline-block;
+    overflow: hidden;
+    width: calc(100% - 100px);
+    vertical-align: top;
+}
+
+#audio {
+    display: inline-block;
+    width: 100%;
+}
