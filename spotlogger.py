@@ -1,6 +1,7 @@
 import spotipy, time, math, traceback, json, requests, os
 from spotipy.oauth2 import SpotifyOAuth
 import index_manager
+from pprint import pprint
 
 
 with open("spotify_authentication.json", "r") as file:
@@ -129,7 +130,7 @@ def albums_in_liked(playlist_length=1472, chunk_size=40, cooldown=1):
 
 # Registers an album from spotify ID
 def register_album_spotify(album_id):
-    album = sp.album(album_id)
+    album = spotify_album_full(album_id)
 
     release_type = album["album_type"].capitalize()
     tracks = album["tracks"]["items"]
@@ -262,7 +263,7 @@ def register_albums_in_liked():
 
 
 def get_tracks_in_liked(playlist_length):
-    print("Retrieving albums in Spotify liked list...")
+    print("Retrieving tracks in Spotify liked list...")
 
     chunk_size = 40
     cooldown = .5
@@ -284,6 +285,38 @@ def get_tracks_in_liked(playlist_length):
         time.sleep(cooldown)
 
     return tracks
+
+# Behaves like spotipy.album but it returns all tracks in the album, not just up to the limit of 50
+def spotify_album_full(album_id):
+    print("Retrieving tracks in Spotify album...")
+
+    album = sp.album(album_id)
+    album_length = album["tracks"]["total"]
+    print(album_length)
+
+    # Extends current response with missing tracks past the limit
+    if album["tracks"]["limit"] < album["tracks"]["total"]:
+        chunk_size = 40
+        offset = album["tracks"]["limit"]
+        cooldown = .5
+
+        
+
+        num_chunks = math.ceil(album_length/chunk_size)
+
+        for i in range(num_chunks):
+            results = sp.album_tracks(album_id, chunk_size, offset)
+            for idx, item in enumerate(results['items']):
+                album["tracks"]["items"].append(item)
+                print(item["name"])
+
+            offset += chunk_size
+            time.sleep(cooldown)
+
+    print(len(album["tracks"]["items"]))
+
+    return album
+
 
 def save_liked_to_playlist():
     tracks = get_tracks_in_liked(1486) # 1486
@@ -330,3 +363,6 @@ def save_liked_to_playlist():
 #register_album_spotify("5oPvIsJd6pzjmpvmiSVbjg")
 
 #register_album_spotify("10VePcOVEROqtHiBGquI2A")
+
+
+register_album_spotify("2M2Ae2SvZe3fmzUtlVOV5Z")

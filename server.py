@@ -39,13 +39,12 @@ def processRequest(raw):
         album = index_manager.index_cache[arg("album_id")]
         track = album["Tracks"][arg("track_num")]
 
-        return {
-            "name":track["Name"],
-            "artists":track["Artists"],
-            "audio_url":f"tracks/{arg("album_id")}_{arg("track_num")}{track["Audio"]["Format"]}",
-            "album_name":album["Name"],
-            "album_cover_url":f"covers/{album["ID"]}.jpeg"
-        }
+        return track
+
+    if intent == "get_album_info_from_id":
+        album = index_manager.index_cache[arg("id")]
+
+        return album
 
     if intent == "redownload":
         downloader.yt_download_track(arg("album_id"), arg("track_num"), True, arg("url"))

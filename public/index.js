@@ -19,6 +19,15 @@ async function request(data) {
 }
 
 
+function truncate_title(title, limit) {
+    if (limit < title.length) {
+        return title.substring(0, limit-3) + "..."
+    } else {
+        return title
+    }
+}
+
+
 let currently_playing_album_id = 0;
 let currently_playing_track_number = 0;
 async function play(album_id, track_number, play_next=true) {
@@ -27,14 +36,15 @@ async function play(album_id, track_number, play_next=true) {
     console.log(currently_playing_album_id)
 
     let info = await request({"intent":"get_track_info_from_id", "album_id":album_id, "track_num":track_number});
-    audio_source.src = info.audio_url;
+    audio_source.src = `tracks/${album_id}_${track_number}${info.Audio.Format}`;
     audio_controls.load();
     audio_controls.play();
 
-    album_cover.src = info.album_cover_url;
-    icon.href = info.album_cover_url;
+    let cover_source = `covers/${album_id}.jpeg`;
+    album_cover.src = cover_source;
+    icon.href = cover_source;
 
-    let title = `${info.name} - ${info.artists[0]}`;
+    let title = `${info.Name} - ${info.Artists[0]}`;
     document.title = title;
     now_playing_title.innerText = title;
 
@@ -61,121 +71,118 @@ const audio_source = document.getElementById("audio_source");
 
 document.title = "Music Library - Nothing Playing"
 
-async function load() {
-    let index = await request({"intent":"get_indices"});
 
-    for (let album_id in index) {
-        let album = index[album_id];
-        
-        let container = document.createElement("div");
-        container.className = "album";
-        content_area.appendChild(container);
+async function add_track_card(album_id, track_number) {
+    let track_info = await request({"intent":"get_track_info_from_id", "album_id":album_id, "track_num":track_number});
 
-        let header_text = document.createElement("h2");
-        header_text.innerText = `${album.ID}: ${album.Name} (${album["Release Year"]})`;
-        header_text.className = "header_text";
-        container.appendChild(header_text);
+    let track_container = document.createElement("div");
+    track_container.className = "track_container";
 
+    let cover_source = `covers/${album_id}.jpeg`;
+    let cover = document.createElement("img");
+    cover.className = "inline_cover"
+    cover.src = cover_source;
+    track_container.appendChild(cover);
 
-        let album_dl_btn = document.createElement("img");
-        album_dl_btn.className = "inline_button"
-        album_dl_btn.src = "./assets/download_from_search.svg";
-        album_dl_btn.title = "Automatically download audio for all tracks in this album by searching";
-        header_text.appendChild(album_dl_btn);
+    let play_btn = document.createElement("img");
+    play_btn.className = "inline_button"
+    play_btn.src = "./assets/play.svg";
+    track_container.appendChild(play_btn);
 
-        album_dl_btn.onclick = async () => {
-            await request({"intent":"dl_by_search_album", "album_id":album["ID"]});
-        }
+    let track_text = document.createElement("span");
+    track_text.className = "track_text"
+    track_container.appendChild(track_text);
 
+    let track_title = document.createElement("div");
+    track_title.innerText = truncate_title(track_info.Name, 40);
+    track_text.appendChild(track_title);
 
-        let contributing_artists = [];
-        let artist_text = document.createElement("div");
-        container.appendChild(artist_text);
+    let track_artists = document.createElement("div");
+    track_artists.classList = "track_artists";
+    track_artists.innerText = truncate_title(track_info.Artists.join(", "), 40);
+    track_text.appendChild(track_artists);
 
-        let cover = document.createElement("img");
-        cover.src = `covers/${album["ID"]}.jpeg`;
-        cover.className = "cover"
-        container.appendChild(cover);
+    if (!track_info.Audio) {
+        track_text.style.color = "grey"
+    }
 
+    // Adding a function to the event like () => {} instead of function () captures the variable values at the time it is assigned
+    play_btn.onclick = async () => {
+        console.log(album_id, track_number);
+        play(album_id, track_number)
+    }
 
-        for (let track of album.Tracks) {
-            let track_container = document.createElement("div");
-            track_container.className = "track_container"
+    let button_area = document.createElement("span");
+    track_container.appendChild(button_area);
 
-            let play_btn = document.createElement("img");
-            play_btn.className = "inline_button"
-            play_btn.src = "./assets/play.svg";
-            track_container.appendChild(play_btn);
-
-            let track_text = document.createElement("span");
-            track_text.innerText = track.Name;
-            track_container.appendChild(track_text);
-
-            for (let artist of track.Artists) {
-                if (! contributing_artists.includes(artist)) {
-                    contributing_artists.push(artist);
-                }
-            }
-
-            // Adding a function to the event like () => {} instead of function () captures the variable values at the time it is assigned
-            play_btn.onclick = async () => {
-                play(album["ID"], track["Track Number"])
-            }
-
-            let verify_btn = document.createElement("img");
-            verify_btn.className = "inline_button"
-            verify_btn.src = "./assets/unverified.svg";
-            verify_btn.title = "Verify that the audio for this track is correct";
-            track_container.appendChild(verify_btn);
-
-            verify_btn.onclick = () => {
-                if (!track["Audio"]) {
-                    track["Audio"] = {Verified: false}
-                }
-
-                if (track["Audio"]["Verified"]) {
-                    track["Audio"]["Verified"] = false
-                    verify_btn.src = "./assets/unverified.svg"
-                    request({"intent":"set_verification", "album_id":album["ID"], "track_num":track["Track Number"], "bool":false})
-                } else {
-                    track["Audio"]["Verified"] = true
-                    verify_btn.src = "./assets/verified.svg"
-                    request({"intent":"set_verification", "album_id":album["ID"], "track_num":track["Track Number"], "bool":true})
-                }
-                
-            }
-
-
-
-            let dl_from_url_btn = document.createElement("img");
-            dl_from_url_btn.className = "inline_button"
-            dl_from_url_btn.src = "./assets/download_from_link.svg";
-            dl_from_url_btn.title = "Automatically download audio for this track from pasted URL";
-            track_container.appendChild(dl_from_url_btn);
-
-            dl_from_url_btn.onclick = () => {
-                let url = document.getElementById("url_box").value;
-                console.log(url);
-                request({"intent":"redownload", "album_id":album["ID"], "track_num":track["Track Number"], "url":url})
-            }
-
-
-            let track_dl_bysearch_btn = document.createElement("img");
-            track_dl_bysearch_btn.className = "inline_button"
-            track_dl_bysearch_btn.src = "./assets/download_from_search.svg";
-            track_dl_bysearch_btn.title = "Automatically download audio for this track by searching";
-            track_container.appendChild(track_dl_bysearch_btn);
+    track_container.onmouseenter = () => {
+        let verify_btn = document.createElement("img");
+        verify_btn.className = "inline_button"
+        verify_btn.src = "./assets/unverified.svg";
+        verify_btn.title = "Verify that the audio for this track is correct";
+        button_area.appendChild(verify_btn);
     
-            track_dl_bysearch_btn.onclick = async () => {
-                await request({"intent":"dl_by_search", "album_id":album["ID"], "track_num":track["Track Number"]});
+        verify_btn.onclick = () => {
+            if (track["Audio"]["Verified"]) {
+                track["Audio"]["Verified"] = false
+                verify_btn.src = "./assets/unverified.svg"
+                request({"intent":"set_verification", "album_id":album_id, "track_num":track_number, "bool":false})
+            } else {
+                track["Audio"]["Verified"] = true
+                verify_btn.src = "./assets/verified.svg"
+                request({"intent":"set_verification", "album_id":album_id, "track_num":track_number, "bool":true})
             }
-
-
-            container.appendChild(track_container);
+            
+        }    
+    
+        let dl_from_url_btn = document.createElement("img");
+        dl_from_url_btn.className = "inline_button"
+        dl_from_url_btn.src = "./assets/download_from_link.svg";
+        dl_from_url_btn.title = "Automatically download audio for this track from pasted URL";
+        button_area.appendChild(dl_from_url_btn);
+    
+        dl_from_url_btn.onclick = async () => {
+            let url = document.getElementById("url_box").value;
+            console.log(url);
+            await request({"intent":"redownload", "album_id":album_id, "track_num":track["Track Number"], "url":url});
+            track_text.style.color = "white"
         }
+    
+    
+        let track_dl_bysearch_btn = document.createElement("img");
+        track_dl_bysearch_btn.className = "inline_button"
+        track_dl_bysearch_btn.src = "./assets/download_from_search.svg";
+        track_dl_bysearch_btn.title = "Automatically download audio for this track by searching";
+        button_area.appendChild(track_dl_bysearch_btn);
+    
+        track_dl_bysearch_btn.onclick = async () => {
+            await request({"intent":"dl_by_search", "album_id":album_id, "track_num":track_number});
+            track_text.style.color = "white"
+        }
+    }
 
-        artist_text.innerText = contributing_artists.join(", ")
+    track_container.onmouseleave = () => {
+        button_area.innerHTML = "";
+    }
+
+    content_area.appendChild(track_container);
+}
+
+
+async function load() {
+    let response_raw = await fetch("playlists/liked.csv");
+    let response_text = await response_raw.text();
+    let playlist = response_text.split(",");
+
+    for (let id_pair of playlist) {
+        console.log(id_pair)
+        let id_pair_seperate = id_pair.split("_");
+        let album_id = parseInt(id_pair_seperate[0]);
+        let track_number = parseInt(id_pair_seperate[1]);
+
+        add_track_card(album_id, track_number)
     }
 }
 
-//load()
+
+load();
