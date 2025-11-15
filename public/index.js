@@ -28,12 +28,29 @@ function truncate_title(title, limit) {
 }
 
 
+const icon = document.getElementById("icon");
+const content_area = document.getElementById("content_area");
+const album_cover = document.getElementById("album_cover");
+const playback_bar = document.getElementById("playback_bar");
+const now_playing_title = document.getElementById("now_playing_title");
+const audio_controls = document.getElementById("audio");
+const audio_source = document.getElementById("audio_source");
+
+document.title = "Music Library - Nothing Playing"
+
+
+
+
+let session_play_history = [];
 let currently_playing_album_id = 0;
 let currently_playing_track_number = 0;
-async function play(album_id, track_number, play_next=true) {
+async function play(album_id, track_number) {
     currently_playing_album_id = album_id
     currently_playing_track_number = track_number
     console.log(currently_playing_album_id)
+
+    // Add to play log
+    request({"intent":"log_play", "album_id":album_id, "track_num":track_number});
 
     let info = await request({"intent":"get_track_info_from_id", "album_id":album_id, "track_num":track_number});
     audio_source.src = `tracks/${album_id}_${track_number}${info.Audio.Format}`;
@@ -48,29 +65,43 @@ async function play(album_id, track_number, play_next=true) {
     document.title = title;
     now_playing_title.innerText = title;
 
-    if (play_next) {
-        audio_controls.onended = () => {
-            play(
-                currently_playing_album_id, 
-                currently_playing_track_number+1,
-                true
-            )
-        }
+    // Adding the track to a list allows the user to play previous tracks
+    session_play_history.push([album_id, track_number])
+}
+
+async function play_next() {
+    let next_track = await request({
+        "intent":"reccommend_next_track", 
+        "album_id":currently_playing_album_id, 
+        "track_num":currently_playing_track_number
+    });
+
+    await play(next_track[0], next_track[1])
+}
+
+async function play_previous() {
+    if (0 < session_play_history.length) {
+        // Remove the currently playing track so the previous is in front and is played
+        session_play_history.pop();
+        last_track = session_play_history[session_play_history.length-1]
+        play(last_track[0], last_track[1]);
+        // The play function will have added this track to the history making two adjacent copies in the history list.
+        // If the user tries to go back again, the same track will play. Remove so this doesnt happen
+        session_play_history.pop();
     }
 }
 
+audio_controls.onended = () => {
+    play_next()
+}
 
-const icon = document.getElementById("icon");
 
-const content_area = document.getElementById("content_area");
-const album_cover = document.getElementById("album_cover");
-const playback_bar = document.getElementById("playback_bar");
-const now_playing_title = document.getElementById("now_playing_title");
-const audio_controls = document.getElementById("audio");
-const audio_source = document.getElementById("audio_source");
 
-document.title = "Music Library - Nothing Playing"
 
+
+function clear_menu() {
+    content_area.innerHTML = "";
+}
 
 async function add_track_card(album_id, track_number) {
     let track_info = await request({"intent":"get_track_info_from_id", "album_id":album_id, "track_num":track_number});
@@ -97,10 +128,20 @@ async function add_track_card(album_id, track_number) {
     track_title.innerText = truncate_title(track_info.Name, 40);
     track_text.appendChild(track_title);
 
+
     let track_artists = document.createElement("div");
     track_artists.classList = "track_artists";
-    track_artists.innerText = truncate_title(track_info.Artists.join(", "), 40);
+    //track_artists.innerText = truncate_title(track_info.Artists.join(", "), 40);
+
+    for (artist of track_info.Artists) {
+        let artist_link = document.createElement("span");
+        artist_link.innerText = artist + ", ";
+        artist_link.setAttribute("onclick", `load_artist_page("${artist}")`);
+        track_artists.appendChild(artist_link)
+    }
+
     track_text.appendChild(track_artists);
+
 
     if (!track_info.Audio) {
         track_text.style.color = "grey"
@@ -121,14 +162,20 @@ async function add_track_card(album_id, track_number) {
         verify_btn.src = "./assets/unverified.svg";
         verify_btn.title = "Verify that the audio for this track is correct";
         button_area.appendChild(verify_btn);
+
+        if (track_info["Audio"]) {
+            if (track_info["Audio"]["Verified"]) {
+                verify_btn.src = "./assets/verified.svg"
+            }
+        }
     
         verify_btn.onclick = () => {
-            if (track["Audio"]["Verified"]) {
-                track["Audio"]["Verified"] = false
+            if (track_info["Audio"]["Verified"]) {
+                track_info["Audio"]["Verified"] = false
                 verify_btn.src = "./assets/unverified.svg"
                 request({"intent":"set_verification", "album_id":album_id, "track_num":track_number, "bool":false})
             } else {
-                track["Audio"]["Verified"] = true
+                track_info["Audio"]["Verified"] = true
                 verify_btn.src = "./assets/verified.svg"
                 request({"intent":"set_verification", "album_id":album_id, "track_num":track_number, "bool":true})
             }
@@ -144,7 +191,7 @@ async function add_track_card(album_id, track_number) {
         dl_from_url_btn.onclick = async () => {
             let url = document.getElementById("url_box").value;
             console.log(url);
-            await request({"intent":"redownload", "album_id":album_id, "track_num":track["Track Number"], "url":url});
+            await request({"intent":"redownload", "album_id":album_id, "track_num":track_number, "url":url});
             track_text.style.color = "white"
         }
     
@@ -169,8 +216,40 @@ async function add_track_card(album_id, track_number) {
 }
 
 
-async function load() {
-    let response_raw = await fetch("playlists/liked.csv");
+
+
+
+
+async function load_artist_page(artist) {
+    clear_menu();
+
+    let head_text = document.createElement("h1");
+    head_text.className = "header_text"
+    head_text.innerText = artist
+    content_area.appendChild(head_text);
+
+    let album_ids = await request({"intent":"get_albums_including_artist", "name":artist});
+
+    for (let id of album_ids) {
+        let album = await request({"intent":"get_album_info_from_id", "id":id});
+
+        // Yeah I get this is inefficient but who cares bro its a local server
+
+        for (let track_number=0; track_number<album.Tracks.length; track_number++) {
+            add_track_card(id, track_number)
+        }
+    }
+}
+
+async function load_playlist_page(name) {
+    clear_menu();
+
+    let head_text = document.createElement("h1");
+    head_text.className = "header_text"
+    head_text.innerText = name
+    content_area.appendChild(head_text);
+
+    let response_raw = await fetch(`playlists/${name}.csv`);
     let response_text = await response_raw.text();
     let playlist = response_text.split(",");
 
@@ -180,9 +259,14 @@ async function load() {
         let album_id = parseInt(id_pair_seperate[0]);
         let track_number = parseInt(id_pair_seperate[1]);
 
-        add_track_card(album_id, track_number)
+        await add_track_card(album_id, track_number)
     }
 }
 
+load_playlist_page("liked");
 
-load();
+
+
+// This basically controls what happens when you press buttons on the media controls in the device notifications
+navigator.mediaSession.setActionHandler('nexttrack', play_next);
+navigator.mediaSession.setActionHandler('previoustrack', play_previous);

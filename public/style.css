@@ -4,6 +4,7 @@ body {
     color: white;
     font-family: sans-serif;
     overflow: hidden;
+    user-select: none
 }
 
 #main_column {
@@ -31,8 +32,7 @@ body {
 }
 
 .header_text {
-    padding: 0;
-    margin: 0;
+    text-align: center;
 }
 
 .track_container:hover {
@@ -81,13 +81,42 @@ body {
     border-radius: 2px;
 }
 
+#head_bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 60px;
+    width: 100%;
+    background-color: black;
+    border-bottom: 1px solid purple;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#head_bar .head_button {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+}
+
+#head_bar textarea {
+    vertical-align: middle;
+    border-radius: 5px;
+    background-color: grey;
+    width: calc(100% - 100px);
+    height: 40px;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 20px;
+    resize: none;
+}
 
 #content_area {
     position: absolute;
     left: 0;
-    top: 0;
+    top: 60px;
     width: 100%;
-    height: calc(100% - 80px);
+    height: calc(100% - 140px);
     overflow-y: scroll;
 }
 

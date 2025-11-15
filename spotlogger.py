@@ -365,4 +365,4 @@ def save_liked_to_playlist():
 #register_album_spotify("10VePcOVEROqtHiBGquI2A")
 
 
-register_album_spotify("2M2Ae2SvZe3fmzUtlVOV5Z")
+register_album_spotify("1bdgMcE3UokVZ9y8fU2Auz")

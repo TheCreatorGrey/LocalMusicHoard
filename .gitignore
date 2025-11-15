@@ -12,7 +12,7 @@
 *.wav
 *.flac
 
-# Do not include indices or playlists
+# Do not include indices, analytics or playlists
 *.json
 *.csv
 

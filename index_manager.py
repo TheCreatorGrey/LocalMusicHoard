@@ -99,7 +99,8 @@ def save_all_album_indices():
 
 
 # Pretty obvious innit mate bruv
-def get_contributing_artists(album):
+def get_contributing_artists(album_id):
+    album = index_cache[album_id]
     artists = []
 
     for track in album["Tracks"]:
@@ -122,6 +123,7 @@ def first_available_album_id():
 # Checks if there is already an album in the index with a matching name, type, and at least one common artist
 def album_exists(name, release_type, artists):
     for album_id in index_cache:
+        print(album_id)
         album = index_cache[album_id]
         if name == album["Name"]: # Name matches
             if release_type.lower() == album["Type"].lower(): # Type matches
@@ -157,3 +159,19 @@ def register_album(name, release_type, release_year, number_of_tracks, cover_dat
     }
 
     return index_cache[album_id]
+
+
+# Making a "write list" of release indices that have been modified allows 
+# the server to write to the modified index files when it closes instead
+# of writing to the files every time they are modified. This prevents excess 
+# writes to index files as long as there aren't duplicates.
+write_list = []
+
+def add_write_list(album_id):
+    if album_id not in write_list:
+        write_list.append(album_id)
+
+# Make sure indices are actually loaded before calling to avoid overwriting indices with incorrect / empty data
+def save_write_list():
+    for r in write_list:
+        save_album_index(r)

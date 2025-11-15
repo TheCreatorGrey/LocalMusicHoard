@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="25"
+   height="25"
+   viewBox="0 0 6.6145832 6.6145833"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   sodipodi:docname="search.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     inkscape:zoom="14.916699"
+     inkscape:cx="8.8156233"
+     inkscape:cy="14.614493"
+     inkscape:window-width="1920"
+     inkscape:window-height="948"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect2"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.21543612,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,0,1,0,0.29573532,0,1 @ F,0,1,1,0,0.21543612,0,1 @ F,0,0,1,0,0.29573532,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect1"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0.51789058,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,0,1,0,0,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,1,1,0,0.51789058,0,1 @ F,0,0,1,0,0,0,1 @ F,0,1,1,0,0.51789058,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect10"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,1,1,0,0.27943109,0,1 @ F,0,0,1,0,0.27943109,0,1 @ F,0,1,1,0,0.27943109,0,1 @ F,0,1,1,0,0.27943109,0,1 @ F,0,1,1,0,0.27943109,0,1 @ F,0,1,1,0,0.27943109,0,1 @ F,0,1,1,0,0.27943109,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path2"
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#ffffff;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke markers fill;enable-background:accumulate;stop-color:#000000;stop-opacity:1;opacity:1"
+       d="M 2.1657593 0 C 0.97249197 0 3.1332961e-16 0.97249197 0 2.1657593 C 0 3.3590266 0.97249197 4.3320353 2.1657593 4.3320353 C 2.6431991 4.3320353 3.0855826 4.1762093 3.4442342 3.9129394 L 6.1660318 6.5412027 A 0.2645835 0.2645835 0 0 0 6.5412027 6.5334513 A 0.2645835 0.2645835 0 0 0 6.5334513 6.1603474 L 3.8302571 3.5501709 C 4.1434429 3.1744187 4.3320353 2.6913727 4.3320353 2.1657593 C 4.3320353 0.97249197 3.3590266 3.1332961e-16 2.1657593 0 z M 2.1657593 0.52916666 C 3.0730436 0.52916666 3.8028686 1.2584751 3.8028686 2.1657593 C 3.8028686 2.635387 3.6071996 3.0575222 3.2928222 3.3553507 A 0.2645835 0.2645835 0 0 0 3.2695678 3.3770548 C 3.2690259 3.3775486 3.2685602 3.3781121 3.2680175 3.3786051 C 2.9776887 3.6423817 2.5910811 3.8028686 2.1657593 3.8028686 C 1.2584751 3.8028686 0.52916666 3.0730436 0.52916666 2.1657593 C 0.52916666 1.2584751 1.2584751 0.52916666 2.1657593 0.52916666 z " />
+  </g>
+</svg>
