@@ -1,6 +1,7 @@
 from flask import Flask, request, send_from_directory, json
-#from waitress import serve
 import os, requests, index_manager, downloader, playlog
+
+# I am completely aware of how abysmal some of the code in here is but really I'm doing this project for myself so uhhhhhh yeah
 
 HOST = "0.0.0.0"
 
@@ -98,7 +99,33 @@ def processRequest(raw):
     # Others
 
     if intent == "reccommend_next_track":
-        return [arg("album_id"), arg("track_num")+1]
+        album = index_manager.index_cache[arg("album_id")]
+
+        # First go through album of track and get the first of the following tracks with audio
+        for track in album["Tracks"]:
+            if arg("track_num") < track["Track Number"]:
+                if track["Audio"]:
+                    if not playlog.was_played_recently("local", album["ID"], track["Track Number"], 10):
+                        return [album["ID"], track["Track Number"]]
+
+        # If that doesn't work, find another album with the same artist with a track that has audio
+        for album_id in index_manager.index_cache:
+            album_check = index_manager.index_cache[album_id]
+            contributing_this = index_manager.get_contributing_artists(album["ID"])
+            contributing_other = index_manager.get_contributing_artists(album_id)
+
+            # See if there is at least one common artist
+            for artist in contributing_this:
+                if artist in contributing_other:
+
+                    # Try to find first track with audio
+
+                    for track in album_check["Tracks"]:
+                        if track["Audio"]:
+                            if not playlog.was_played_recently("local", album_id, track["Track Number"], 10):
+                                return [album_id, track["Track Number"]]
+
+        # And if that STILL DOESN'T WORK, just give em the first track with audio that can be found
 
     if intent == "log_play": # Sent by the client when a track is played telling the server to add to the play log
         playlog.add("local", arg("album_id"), arg("track_num"))

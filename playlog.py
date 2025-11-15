@@ -26,6 +26,18 @@ def add(profile_name, album_id, track_num):
         [album_id, track_num, date.day, date.month, date.year] # Fine, I'll use day-month-year.
     )
 
+# Checks whether a track was played recently. Used when finding the next tracks to play
+def was_played_recently(profile_name, album_id, track_num, limit=10):
+    recent_tracks = log[profile_name][-limit:]
+
+    for track in recent_tracks:
+        if track[0] == album_id:
+            if track [1] == track_num:
+                return True
+
+    return False
+
+
 def save():
     with open(path, "w") as file:
         json.dump(log, file)
