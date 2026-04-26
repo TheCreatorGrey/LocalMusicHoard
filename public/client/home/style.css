@@ -1,6 +1,6 @@
 body {
     background-color: black;
-    background-image: url(assets/background.svg);
+    background-image: url(/assets/background.svg);
     color: white;
     font-family: sans-serif;
     overflow: hidden;
@@ -35,6 +35,10 @@ body {
     text-align: center;
 }
 
+.track_container {
+    transition: background-color .1s;
+}
+
 .track_container:hover {
     background-color: rgba(140, 0, 255, 0.5);
 }
@@ -58,6 +62,22 @@ body {
     border-radius: 2px;
 }
 
+.inline_text_button {
+    height: 15px;
+    padding: 2px;
+    margin-right: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 2px;
+}
+
+textarea {
+    width: 174px;
+    height: 20px;
+    resize: none;
+    box-sizing: border-box;
+}
+
 .inline_cover {
     width: 40px;
     height: 40px;
@@ -65,6 +85,7 @@ body {
     display: inline-block;
     vertical-align: middle;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .inline_button:hover {
@@ -99,24 +120,54 @@ body {
     vertical-align: middle;
 }
 
+#search_btn {
+    background-color: grey;
+    margin-left: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
 #head_bar textarea {
     vertical-align: middle;
     border-radius: 5px;
     background-color: grey;
-    width: calc(100% - 100px);
+    width: calc(100% - 200px);
     height: 40px;
     padding: 10px;
     box-sizing: border-box;
     font-size: 20px;
     resize: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#playlist_bar {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    height: 40px;
+    width: 100%;
+    background-color: black;
+    border-bottom: 1px solid purple;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+#playlist_bar button {
+    height: 30px;
+    background-color: black;
+    border: 1px solid white;
+    border-radius: 5px;
+    color: white;
+    box-sizing: border-box;
 }
 
 #content_area {
     position: absolute;
     left: 0;
-    top: 60px;
+    top: 100px;
     width: 100%;
-    height: calc(100% - 140px);
+    height: calc(100% - 180px);
     overflow-y: scroll;
 }
 
@@ -137,6 +188,7 @@ body {
     width: 80px;
     display: inline-block;
     vertical-align: top;
+    cursor: pointer;
 }
 
 #playback_controls_area {

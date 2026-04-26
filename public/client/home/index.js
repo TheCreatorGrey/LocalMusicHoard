@@ -6,9 +6,6 @@ async function request(data) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-    }).catch(() => {
-        console.error("Request failed.")
-        return undefined
     })
 
     if (response) {
@@ -17,7 +14,6 @@ async function request(data) {
         return response.response;
     }
 }
-
 
 function truncate_title(title, limit) {
     if (limit < title.length) {
@@ -28,7 +24,12 @@ function truncate_title(title, limit) {
 }
 
 
+const home_btn = document.getElementById("home_btn");
+const search_btn = document.getElementById("search_btn");
+const new_btn = document.getElementById("new_btn");
+const search_bar = document.getElementById("search_bar");
 const icon = document.getElementById("icon");
+const playlist_bar = document.getElementById("playlist_bar");
 const content_area = document.getElementById("content_area");
 const album_cover = document.getElementById("album_cover");
 const playback_bar = document.getElementById("playback_bar");
@@ -37,6 +38,34 @@ const audio_controls = document.getElementById("audio");
 const audio_source = document.getElementById("audio_source");
 
 document.title = "Music Library - Nothing Playing"
+
+
+search_btn.onclick = () => { load_search_page(search_bar.value) };
+home_btn.onclick = () => { load_playlist_page("liked") };
+
+new_btn.onclick = async () => { new_album_menu() }
+
+
+
+
+// Loadin' indicator stuff
+
+const loading_indicator = document.getElementById("loading_indicator");
+loading_indicator.hidden = true;
+
+tasks = 0;
+function indicateLoading() {
+    tasks++;
+    loading_indicator.hidden = false;
+}
+
+function finishLoading() {
+    tasks--;
+
+    if (tasks == 0) {
+        loading_indicator.hidden = true;
+    }
+}
 
 
 
@@ -52,12 +81,14 @@ async function play(album_id, track_number) {
     // Add to play log
     request({"intent":"log_play", "album_id":album_id, "track_num":track_number});
 
+    indicateLoading();
     let info = await request({"intent":"get_track_info_from_id", "album_id":album_id, "track_num":track_number});
-    audio_source.src = `tracks/${album_id}_${track_number}${info.Audio.Format}`;
-    audio_controls.load();
-    audio_controls.play();
+    audio_source.src = `/tracks/${album_id}_${track_number}${info.Audio.Format}`;
+    await audio_controls.load();
+    await audio_controls.play();
+    finishLoading();
 
-    let cover_source = `covers/${album_id}.jpeg`;
+    let cover_source = `/covers/${album_id}.jpeg`;
     album_cover.src = cover_source;
     icon.href = cover_source;
 
@@ -67,6 +98,10 @@ async function play(album_id, track_number) {
 
     // Adding the track to a list allows the user to play previous tracks
     session_play_history.push([album_id, track_number])
+
+    album_cover.onclick = () => {
+        album_cover_menu(currently_playing_album_id)
+    }
 }
 
 async function play_next() {
@@ -109,15 +144,19 @@ async function add_track_card(album_id, track_number) {
     let track_container = document.createElement("div");
     track_container.className = "track_container";
 
-    let cover_source = `covers/${album_id}.jpeg`;
+    let cover_source = `/covers/${album_id}.jpeg`;
     let cover = document.createElement("img");
     cover.className = "inline_cover"
     cover.src = cover_source;
     track_container.appendChild(cover);
 
+    cover.onclick = () => {
+        album_cover_menu(album_id)
+    }
+
     let play_btn = document.createElement("img");
     play_btn.className = "inline_button"
-    play_btn.src = "./assets/play.svg";
+    play_btn.src = "/assets/play.svg";
     track_container.appendChild(play_btn);
 
     let track_text = document.createElement("span");
@@ -136,6 +175,7 @@ async function add_track_card(album_id, track_number) {
     for (artist of track_info.Artists) {
         let artist_link = document.createElement("span");
         artist_link.innerText = artist + ", ";
+
         artist_link.setAttribute("onclick", `load_artist_page("${artist}")`);
         track_artists.appendChild(artist_link)
     }
@@ -159,52 +199,42 @@ async function add_track_card(album_id, track_number) {
     track_container.onmouseenter = () => {
         let verify_btn = document.createElement("img");
         verify_btn.className = "inline_button"
-        verify_btn.src = "./assets/unverified.svg";
+        verify_btn.src = "/assets/unverified.svg";
         verify_btn.title = "Verify that the audio for this track is correct";
         button_area.appendChild(verify_btn);
 
         if (track_info["Audio"]) {
             if (track_info["Audio"]["Verified"]) {
-                verify_btn.src = "./assets/verified.svg"
+                verify_btn.src = "/assets/verified.svg"
             }
+        }
+
+        if (!track_info["Audio"]) {
+            track_info["Audio"] = {}
+            track_info["Audio"]["Verified"] = false
         }
     
         verify_btn.onclick = () => {
             if (track_info["Audio"]["Verified"]) {
                 track_info["Audio"]["Verified"] = false
-                verify_btn.src = "./assets/unverified.svg"
+                verify_btn.src = "/assets/unverified.svg"
                 request({"intent":"set_verification", "album_id":album_id, "track_num":track_number, "bool":false})
             } else {
                 track_info["Audio"]["Verified"] = true
-                verify_btn.src = "./assets/verified.svg"
+                verify_btn.src = "/assets/verified.svg"
                 request({"intent":"set_verification", "album_id":album_id, "track_num":track_number, "bool":true})
             }
             
-        }    
-    
-        let dl_from_url_btn = document.createElement("img");
-        dl_from_url_btn.className = "inline_button"
-        dl_from_url_btn.src = "./assets/download_from_link.svg";
-        dl_from_url_btn.title = "Automatically download audio for this track from pasted URL";
-        button_area.appendChild(dl_from_url_btn);
-    
-        dl_from_url_btn.onclick = async () => {
-            let url = document.getElementById("url_box").value;
-            console.log(url);
-            await request({"intent":"redownload", "album_id":album_id, "track_num":track_number, "url":url});
-            track_text.style.color = "white"
         }
+
+        let configure_btn = document.createElement("img");
+        configure_btn.className = "inline_button"
+        configure_btn.src = "/assets/wrench.svg";
+        configure_btn.title = "Configure track and album";
+        button_area.appendChild(configure_btn);
     
-    
-        let track_dl_bysearch_btn = document.createElement("img");
-        track_dl_bysearch_btn.className = "inline_button"
-        track_dl_bysearch_btn.src = "./assets/download_from_search.svg";
-        track_dl_bysearch_btn.title = "Automatically download audio for this track by searching";
-        button_area.appendChild(track_dl_bysearch_btn);
-    
-        track_dl_bysearch_btn.onclick = async () => {
-            await request({"intent":"dl_by_search", "album_id":album_id, "track_num":track_number});
-            track_text.style.color = "white"
+        configure_btn.onclick = async () => {
+            track_config_menu(album_id, track_number)
         }
     }
 
@@ -219,8 +249,72 @@ async function add_track_card(album_id, track_number) {
 
 
 
+async function load_whole_index_page() {
+    indicateLoading();
+    clear_menu();
+
+    let head_text = document.createElement("h1");
+    head_text.className = "header_text"
+    head_text.innerText = "Track Index"
+    content_area.appendChild(head_text);
+
+    let indices = await request({"intent":"get_index_ids"});
+
+    console.log(indices)
+
+    for (let id of indices) {
+        let album = await request({"intent":"get_album_info_from_id", "id":id});
+
+        // Yeah I get this is inefficient but who cares bro its a local server
+
+        for (let track_number=0; track_number<album.Tracks.length; track_number++) {
+            add_track_card(id, track_number)
+        }
+    }
+    finishLoading();
+}
+
+async function load_album_page(id) {
+    indicateLoading();
+    clear_menu();
+
+    let head_text = document.createElement("h1");
+    head_text.className = "header_text"
+    head_text.innerText = "Loading..."
+    content_area.appendChild(head_text);
+
+    let album = await request({"intent":"get_album_info_from_id", "id":id});
+
+    head_text.innerText = album.Name
+
+    for (let track_number=0; track_number<album.Tracks.length; track_number++) {
+        add_track_card(id, track_number)
+    }
+    
+    finishLoading();
+}
+
+async function load_search_page(query) {
+    indicateLoading();
+    clear_menu();
+
+    let head_text = document.createElement("h1");
+    head_text.className = "header_text"
+    head_text.innerText = `Search for "${query}"`
+    content_area.appendChild(head_text);
+
+    let results = await request({"intent":"search_tracks", "query":query});
+
+    for (let id_pair of results) {
+        console.log(id_pair)
+        await add_track_card(id_pair[0], id_pair[1])
+    }
+
+    finishLoading();
+}
 
 async function load_artist_page(artist) {
+    indicateLoading();
     clear_menu();
 
     let head_text = document.createElement("h1");
@@ -233,15 +327,36 @@ async function load_artist_page(artist) {
     for (let id of album_ids) {
         let album = await request({"intent":"get_album_info_from_id", "id":id});
 
-        // Yeah I get this is inefficient but who cares bro its a local server
-
         for (let track_number=0; track_number<album.Tracks.length; track_number++) {
             add_track_card(id, track_number)
         }
     }
+    finishLoading();
+}
+
+async function load_top_page() {
+    indicateLoading();
+    clear_menu();
+
+    let head_text = document.createElement("h1");
+    head_text.className = "header_text"
+    head_text.innerText = `Top tracks for this profile`
+    content_area.appendChild(head_text);
+
+    let results = await request({"intent":"get_top_tracks"});
+
+    for (let id_pair of results) {
+        let id_pair_seperate = id_pair.split("_");
+        let album_id = parseInt(id_pair_seperate[0]);
+        let track_number = parseInt(id_pair_seperate[1]);
+        await add_track_card(album_id, track_number)
+    }
+
+    finishLoading();
 }
 
 async function load_playlist_page(name) {
+    indicateLoading();
     clear_menu();
 
     let head_text = document.createElement("h1");
@@ -249,7 +364,7 @@ async function load_playlist_page(name) {
     head_text.innerText = name
     content_area.appendChild(head_text);
 
-    let response_raw = await fetch(`playlists/${name}.csv`);
+    let response_raw = await fetch(`/playlists/${name}.csv`);
     let response_text = await response_raw.text();
     let playlist = response_text.split(",");
 
@@ -261,9 +376,39 @@ async function load_playlist_page(name) {
 
         await add_track_card(album_id, track_number)
     }
+    finishLoading();
 }
 
-load_playlist_page("liked");
+load_playlist_page("classical");
+//load_whole_index_page();
+//load_top_page();
+
+
+
+
+async function loadPlaylistBar() {
+    let add_button = document.createElement("button");
+    add_button.innerText = " + ";
+    playlist_bar.appendChild(add_button);
+
+    add_button.onclick = () => {
+        new_playlist_menu()
+    };
+
+    let playlist_names = await request({"intent":"get_playlist_names"});
+
+    for (let playlist of playlist_names) {
+        let button = document.createElement("button");
+        button.innerText = playlist;
+        playlist_bar.appendChild(button);
+
+        button.onclick = () => {
+            load_playlist_page(playlist);
+        }
+    }
+}
+
+loadPlaylistBar()
 
 
 

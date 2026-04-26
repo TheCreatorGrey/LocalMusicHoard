@@ -1,0 +1,14 @@
+All previous changes are tracked by Git.
+
+
+Version 2
+
+I'm not sure how much has actually changed 
+since the last commit, but I'll do my best 
+to remember and try to track changes from 
+this point on.
+
+Better manual track and album configuration
+Server now uses built in HTTP library instead of Flask
+Added playlist bar containing buttons that lead to playlist pages
+There is now an animated loading indicator

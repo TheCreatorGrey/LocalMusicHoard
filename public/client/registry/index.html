@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Discography</title>
+</head>
+<body>
+    <span>
+        As you may be able to tell I put a lot less effort into this page. <br>
+        It probably doesn't matter though because most of the time you'll be <br>
+        looking at the main page. <br><br>
+    </span>
+
+
+    <h2>From Spotify (Automatic)</h2>
+    <span>
+        This will load everything automatically except for audio. <br>
+        After the basic information for the album and its tracks <br>
+        is registered, you will be able to add audio through the <br>
+        configuration menu for each track.
+    </span> <br><br>
+
+    <span>Enter the ID of a release:</span>
+    <textarea id="spotify_reg_album_input"></textarea>
+    <button id="spotify_reg_album_btn">Register</button>
+    <br>
+    <span>Enter the ID of a playlist:</span>
+    <textarea id="spotify_reg_pl_input"></textarea>
+    <button id="spotify_reg_pl_btn">Register All</button>
+    <br>
+
+    <hr>
+
+    <h2>Manual (Not yet functional)</h2>
+    <span>
+        This will add an empty album index. The name, year and <br>
+        optionally album cover can be added from the album's <br>
+        configuration menu. Empty tracks will be added to the <br>
+        index as well, titled "Track 1... Track 2... Track 3" <br>
+        and so on. Titles, audio, and contributing artists can <br>
+        be added from the configuration menus for each track.
+    </span> <br><br>
+
+    <span>Number of tracks:</span>
+    <textarea name="" id=""></textarea>
+    <br>
+    <button>Add empty index</button>
+    <br>
+
+    <hr>
+
+    <button id="server_stop">Turn off server</button>
+    <button id="shutdown">Shut down host machine</button>
+
+    <style>
+        body {
+            background-color: black;
+            color: wheat;
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        textarea {
+            height: 16px;
+            vertical-align: middle;
+            resize: none;
+        }
+    </style>
+
+    <script src="/client/home/index.js"></script>
+    <script>
+        const spotify_reg_pl_btn = document.getElementById("spotify_reg_pl_btn");
+        const spotify_reg_pl_input = document.getElementById("spotify_reg_pl_input");
+
+        const spotify_reg_album_btn = document.getElementById("spotify_reg_album_btn");
+        const spotify_reg_album_input = document.getElementById("spotify_reg_album_input");
+
+        spotify_reg_album_btn.onclick = async () => {
+            await request({"intent":"spot_register_album", "spotify_album_id":spotify_reg_album_input.value})
+        }
+
+        spotify_reg_pl_btn.onclick = async () => {
+            await request({"intent":"spot_register_playlist", "spotify_pl_id":spotify_reg_pl_input.value})
+        }
+
+        const server_stop_btn = document.getElementById("server_stop");
+        const shutdown_btn = document.getElementById("shutdown");
+
+        server_stop_btn.onclick = async () => {
+            await request({"intent":"close_server"})
+        }
+
+        shutdown_btn.onclick = async () => {
+            await request({"intent":"shutdown"})
+        }
+    </script>
+</body>
+</html>

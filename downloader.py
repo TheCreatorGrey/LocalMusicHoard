@@ -1,6 +1,19 @@
 from pytubefix import YouTube, Search
 import index_manager, os
 
+# Tries to find a URL for a youtube video with audio for a track
+def yt_search_track(album_id, track_number):
+    album = index_manager.index_cache[album_id]
+    track = album["Tracks"][track_number]
+
+    query = f"{track["Name"]} by {" ".join(track["Artists"])} Audio"
+
+    result = Search(query).videos[0]
+    url = result.watch_url
+
+    return url
+
+# Downloads audio for a track from a youtube URL
 def yt_download_track(album_id, track_number, overwrite=False, video_url=None, save_index=True):
     album = index_manager.index_cache[album_id]
     file_name = f"{album_id}_{track_number}.mkv"
@@ -27,10 +40,7 @@ def yt_download_track(album_id, track_number, overwrite=False, video_url=None, s
     if video_url:
         url = video_url
     else:
-        query = f"{track["Name"]} by {" ".join(track["Artists"])} Audio"
-
-        result = Search(query).videos[0]
-        url = result.watch_url
+        url = yt_search_track(album_id, track_number)
 
     video = YouTube(url)
     stream = video.streams.get_audio_only()
@@ -63,3 +73,22 @@ def dl_singles_from_artist(index, artist_name):
         if release["Type"] == "Single":
             if artist_name in index_manager.get_contributing_artists(release):
                 yt_download_track(release, 0)
+
+
+
+def dl_all_liked():
+    with open("public/playlists/liked.csv", "r") as file:
+        pairs = file.read().split(",")[100:200]
+
+        for pair in pairs:
+            album_id, track_num = pair.split("_")
+            album_id = int(album_id)
+            track_num = int(track_num)
+            track = index_manager.index_cache[album_id]["Tracks"][int(track_num)]
+
+            if not track["Audio"]:
+                print(album_id, track_num, track)
+
+                yt_download_track(album_id, track_num, False)
+
+                index_manager.add_write_list(album_id)

@@ -1,4 +1,4 @@
-import os, json
+import os, json, random
 
 
 # Album index example
@@ -123,13 +123,13 @@ def first_available_album_id():
 # Checks if there is already an album in the index with a matching name, type, and at least one common artist
 def album_exists(name, release_type, artists):
     for album_id in index_cache:
-        print(album_id)
+        #print(album_id)
         album = index_cache[album_id]
         if name == album["Name"]: # Name matches
             if release_type.lower() == album["Type"].lower(): # Type matches
                 # Check for matching artists
                 for artist in artists:
-                    if artist in get_contributing_artists(album):
+                    if artist in get_contributing_artists(album_id):
                         # If both are so, the album is likely already indexed
                         return album
 
@@ -137,7 +137,7 @@ def album_exists(name, release_type, artists):
 
 # Adds an empty album with information into the index and returns it
 # REGISTERING AN ALBUM THAT IS ALREADY INDEXED WILL ERASE THE CURRENT INDEX; WHETHER AN ALBUM IS ALREADY INDEXED OR NOT SHOULD BE CHECKED BEFORE CALLING
-def register_album(name, release_type, release_year, number_of_tracks, cover_data):
+def register_album(name, release_type, release_year, track_count, cover_data):
     # Before the album index is created, get the cover first so we can store the cover ID
 
     album_id = first_available_album_id()
@@ -148,13 +148,21 @@ def register_album(name, release_type, release_year, number_of_tracks, cover_dat
         with open(f"public/covers/{album_id}.jpeg", "wb") as file:
             file.write(cover_data)
 
+    tracks = []
+    for i in range(track_count):
+        tracks.append({
+            "Name": "Untitled", 
+            "Artists": ["No registered artists"], 
+            "Track Number": i, 
+            "Audio": None
+        })
 
     # Now actually make the album index
     index_cache[album_id] = {
         "Type":release_type,
         "Name":name,
         "Release Year":release_year,
-        "Tracks":[],
+        "Tracks":tracks,
         "ID":album_id
     }
 
@@ -175,3 +183,30 @@ def add_write_list(album_id):
 def save_write_list():
     for r in write_list:
         save_album_index(r)
+
+
+
+
+def random_track(tries=80, year_range=[0, 10000]):
+    for _ in range(tries):
+        album_ids = index_cache.keys()
+        album_id = random.randrange(len(album_ids)-1)
+        album = index_cache[album_id]
+
+        # Album checks
+
+        if not album["Tracks"]:
+            continue
+
+        if not ((year_range[0] < int(album["Release Year"])) and (int(album["Release Year"]) < year_range[1])):
+            continue
+
+
+        tracks = album["Tracks"]
+        track_number = random.randrange(len(tracks)-1)
+        track = tracks[track_number]
+
+        if not track["Audio"]:
+            continue
+
+        return track

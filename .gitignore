@@ -1,23 +1,16 @@
-# Do not include cover files
-*.png
-*.jpg
-*.jpeg
-*.webp
-*.bmp
-
-# Do not include tracks
-*.mp3
-*.m4a
-*.mkv
-*.wav
-*.flac
-
-# Do not include indices, analytics or playlists
-*.json
-*.csv
+# Do not include user data
+indices
+playlists
+covers
+tracks
+analytics
 
 # Other private directories
 .old
 .cache
 __pycache__
 env
+
+readme.md
+spotify_authentication.json
+*.json

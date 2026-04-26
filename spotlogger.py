@@ -1,103 +1,16 @@
 import spotipy, time, math, traceback, json, requests, os
 from spotipy.oauth2 import SpotifyOAuth
 import index_manager
-from pprint import pprint
 
 
 with open("spotify_authentication.json", "r") as file:
     spotify_authentication = json.load(file)
+    
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotify_authentication["client_id"],
                                             client_secret=spotify_authentication["client_secret"],
                                             redirect_uri=spotify_authentication["redirect_uri"],
                                             scope="user-library-read"))
-
-
-def register_track(track):
-    track_album = track["album"]
-    album_name = track["album"]["name"]
-
-    album_artists = []
-    for artist in track["album"]["artists"]:
-        album_artists.append(artist["name"])
-
-
-    match = None
-    for index_album in index["Albums"]:
-
-        if index_album["Name"] == track_album["name"]: # Name matches
-
-            # Check if track album and album in index have matching artists
-            for artist in track_album["artists"]:
-                if artist["name"] in index_album["Artists"]:
-                    # If both are so, the index album and the album of the track likely match
-                    match = index_album
-        
-
-    if match:
-        print(f'Found matching album for "{match["Name"]}" in index.')
-        album_index = match
-
-    else:
-        print(f'Album for track "{track["name"]}" not found in index yet. Creating...')
-
-        # Before the album index is created, get the cover first so we can store the cover ID
-
-        cover_data = None
-
-        # TAKE OUT OF IF FALSE LATER \/\/\/\/\/
-        if False:
-            if 0 < len(track["album"]["images"]):
-                # Get the smallest resolution cover so we don't eat up space with thousands of high res covers
-                smallest_cover = None
-                for cover in track["album"]["images"]:
-                    if smallest_cover:
-                        if (cover["width"] < smallest_cover["width"]):
-                            smallest_cover = cover
-                    else:
-                        smallest_cover = cover
-
-                try:
-                    cover_data = requests.get(smallest_cover["url"], timeout=10).content
-                except requests.exceptions.Timeout:
-                    print("Request for cover timed out")
-        # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-        
-
-        if 0 < len(track["album"]["images"]):
-            cover_data = True
-
-        # Now actually make the album index
-        album_index = index_manager.register_album(
-            track["album"]["name"],
-            track["album"]["album_type"].capitalize(),
-            track["album"]["release_date"].split("-")[0],
-            track["album"]["total_tracks"],
-            cover_data
-        )
-
-
-    # Now that the album index has been found or created, there is somewhere to put the track
-
-    tracks = sp.album(track_album["id"])["tracks"]["items"]
-    print(tracks)
-    track_num = 0
-    for t in tracks:
-        track_artists = []
-        for artist in t["artists"]:
-            track_artists.append(artist["name"])
-
-        album_index["Tracks"].append(
-            {
-                "Name":t["name"],
-                "Artists":track_artists,
-                "Track Number":track_num,
-                "Audio Asset ID":None
-            }
-        )
-
-        track_num += 1
-
 
 
 # Gets the albums of songs in the Spotify liked songs list. May return duplicates for now
@@ -174,7 +87,7 @@ def register_album_spotify(album_id):
             album["name"],
             release_type,
             album["release_date"].split("-")[0],
-            album["total_tracks"],
+            0,
             cover_data
         )
 
@@ -239,7 +152,7 @@ def register_albums_in_liked():
                 album["name"],
                 release_type,
                 album["release_date"].split("-")[0],
-                album["total_tracks"],
+                0,
                 cover_data
             )
 
@@ -273,7 +186,7 @@ def get_tracks_in_liked(playlist_length):
     tracks = []
     offset = 0
 
-    print(f"Loaded 0 of {playlist_length}")
+    #print(f"Loaded 0 of {playlist_length}")
 
     for i in range(num_chunks):
         results = sp.current_user_saved_tracks(chunk_size, offset)
@@ -285,6 +198,8 @@ def get_tracks_in_liked(playlist_length):
         time.sleep(cooldown)
 
     return tracks
+
+
 
 # Behaves like spotipy.album but it returns all tracks in the album, not just up to the limit of 50
 def spotify_album_full(album_id):
@@ -299,8 +214,6 @@ def spotify_album_full(album_id):
         chunk_size = 40
         offset = album["tracks"]["limit"]
         cooldown = .5
-
-        
 
         num_chunks = math.ceil(album_length/chunk_size)
 
@@ -320,16 +233,12 @@ def spotify_album_full(album_id):
 
 def save_liked_to_playlist():
     tracks = get_tracks_in_liked(1486) # 1486
-    file_text = ""
+    track_id_pairs = []
 
     for track in tracks:
-        # get list of artists
-
         artists = []
         for artist in track["artists"]:
             artists.append(artist["name"])
-
-        #print(artists)
 
         matching_index = index_manager.album_exists(
             track["album"]["name"], 
@@ -340,7 +249,7 @@ def save_liked_to_playlist():
         if matching_index:
             print(f"Found matching index {matching_index["ID"]} \"{matching_index["Name"]}\"")
 
-            file_text += f"{matching_index["ID"]}_{track["track_number"]-1},"
+            track_id_pairs.append(f"{matching_index["ID"]}_{track["track_number"]-1}")
 
             print(track["name"], track["track_number"]-1)
         else:
@@ -348,9 +257,44 @@ def save_liked_to_playlist():
 
     
     with open("public/playlists/liked.csv", "w") as file:
-        file.write(file_text)
+        file.write(",".join(track_id_pairs))
 
     print("Saved Spotify liked playlist to local playlist")
+
+
+def save_playlist(spotify_playlist_id):
+    pl = sp.playlist(spotify_playlist_id)
+    name = pl["name"]
+    track_id_pairs = []
+
+    for item in pl["tracks"]["items"]:
+        track = item["track"]
+        #print(track)
+        artists = []
+        for artist in track["artists"]:
+            artists.append(artist["name"])
+
+        print(artists)
+
+        matching_index = index_manager.album_exists(
+            track["album"]["name"], 
+            track["album"]["album_type"],
+            artists
+        )
+
+        if matching_index:
+            print(f"Found matching index {matching_index["ID"]} \"{matching_index["Name"]}\"")
+
+            track_id_pairs.append(f"{matching_index["ID"]}_{track["track_number"]-1}")
+
+            print(track["name"], track["track_number"]-1)
+        else:
+            print(f"Couldn't find \"{track["album"]["name"]}\" ({track["name"]})")
+
+    with open(f"public/playlists/{name}.csv", "w") as file:
+        file.write(",".join(track_id_pairs))
+
+#save_playlist("")
 
 #save_liked_to_playlist()
 
@@ -358,11 +302,4 @@ def save_liked_to_playlist():
 
 #register_albums_in_liked()
 
-#register_album_spotify("6XFk5NEkZ45fez4714U3bV")
-#register_album_spotify("0XC7fNm2tr27w7nIE8WbMD")
-#register_album_spotify("5oPvIsJd6pzjmpvmiSVbjg")
-
-#register_album_spotify("10VePcOVEROqtHiBGquI2A")
-
-
-register_album_spotify("1bdgMcE3UokVZ9y8fU2Auz")
+#register_album_spotify("4bOhT7b4ElXBkvdF7YqWnS")
